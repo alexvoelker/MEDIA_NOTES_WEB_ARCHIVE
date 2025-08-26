@@ -3,9 +3,18 @@
   "version": "1.0.0",
   "description": "A website utalizing PostgreSQL, and Node to list a selection of book, tv, and movie watchlists. It also supports adding notes for each entry and rating them.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "alexvoelker",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.11.0",
+    "body-parser": "^2.2.0",
+    "dotenv": "^17.2.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
+  }
 }

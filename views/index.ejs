@@ -1,0 +1,59 @@
+<%- include('partials/header.ejs') %>
+
+    <main>
+        <h1>Search for Media</h1>
+        <h2>To add to your archive</h2>
+        <hr>
+        <br>
+        <form action="/" method="POST" class="search-form">
+            <input type="text" name="query_string" required
+                placeholder="Search for a TV Show, Movie, or Book to add to your archive" <% if (locals.search_query) {
+                %>
+            value="<%= locals.search_query.query %>"
+                <% } %>
+                    >
+                    <label for="media_type">Additionally, select the type of media to search for:</label>
+                    <select name="query_type" id="media_type" required>
+                        <option value="Movie_TV" <% if (locals.search_query && locals.search_query.type=="Movie_TV" ) {
+                            %>
+                            selected
+                            <% } %>
+                                >
+                                Movie / TV Show
+                        </option>
+                        <option value="Book" <% if (locals.search_query && locals.search_query.type=="Book" ) { %>
+                            selected
+                            <% } %>
+                                >Book
+                        </option>
+                    </select>
+                    <button type="submit">Submit</button>
+                    <button type="reset">Clear</button>
+        </form>
+        <br>
+
+        <% if (locals.search_results && locals.search_results.length> 0) { %>
+            <div class="search-results">
+                <hr>
+                <h3>Select the item to add to your media library</h3>
+                <!-- Create a card for each search result -->
+                <form action="/add" method="POST">
+                    <% for (result of locals.search_results) { %>
+                        <button type="submit">
+                            <input type="radio" name="search_selection" value="<%= result.type %>:<%= result.id %>">
+                            <div class="search-result">
+                                <img src="" alt="Image of <%= result.title %> (<%= result.year_start %>)">
+                                <h4>
+                                    <%= result.title %>
+                                </h4>
+                                <h5><%=result.year_start%>—<%= if (result.year_end)%></h5>
+                            </div>
+                        </button>
+                        <% } %>
+                </form>
+            </div>
+            <% } %>
+
+    </main>
+
+    <%- include('partials/footer.ejs') %>

@@ -1,0 +1,43 @@
+/* .nav-library-button {
+    color: whitesmoke;
+} */
+
+.nav-library-button:hover {
+    transition-duration: 250ms;
+    border-radius: 5px;
+    background-color: rgb(231, 176, 8);
+    color: black;
+}
+/* .nav-library-button {
+    color: whitesmoke;
+} */
+
+.nav-library-button:hover {
+    transition-duration: 250ms;
+    border-radius: 5px;
+    background-color: rgb(231, 176, 8);
+    color: black;
+}
+
+/* .nav-library-button {
+    color: whitesmoke;
+} */
+
+.nav-library-button:hover {
+    transition-duration: 250ms;
+    border-radius: 5px;
+    background-color: rgb(231, 176, 8);
+    color: black;
+}
+
+/* main {
+    background: linear-gradient(to bottom right --bs-body-bg, --bs-indigo);
+} */
+
+.search-form {
+    display: grid;
+    columns: 1;
+    margin: 2rem;
+    row-gap: 1rem;
+    text-align: center;
+}
