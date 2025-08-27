@@ -7,8 +7,8 @@
         <br>
         <form action="/" method="POST" class="search-form">
             <input type="text" name="query_string" required
-                placeholder="Search for a TV Show, Movie, or Book to add to your archive" <% if (locals.search_query) {
-                %>
+                placeholder="Search for a TV Show, Movie, or Book to add to your archive (by title)" <% if
+                (locals.search_query) { %>
             value="<%= locals.search_query.query %>"
                 <% } %>
                     >
@@ -32,27 +32,47 @@
         </form>
         <br>
 
-        <% if (locals.search_results && locals.search_results.length> 0) { %>
+        <% if (locals.search_results) { %>
             <div class="search-results">
                 <hr>
-                <h3>Select the item to add to your media library</h3>
-                <!-- Create a card for each search result -->
-                <form action="/add" method="POST">
-                    <% for (result of locals.search_results) { %>
-                        <button type="submit">
-                            <input type="radio" name="search_selection" value="<%= result.type %>:<%= result.id %>">
-                            <div class="search-result">
-                                <img src="" alt="Image of <%= result.title %> (<%= result.year_start %>)">
-                                <h4>
-                                    <%= result.title %>
-                                </h4>
-                                <h5><%=result.year_start%>—<%= if (result.year_end)%></h5>
-                            </div>
-                        </button>
-                        <% } %>
-                </form>
+                <% if (locals.search_results.length===0) { %>
+                    <h3>No results, please try a different query.</h3>
+                    <% } else { %>
+                        <h3>Select the item to add to your media library</h3>
+                        <h4>
+                            <%= locals.search_results.length %> Results
+                        </h4>
+                        <hr>
+                        <br>
+                        <!-- Create a card for each search result -->
+                        <form action="/add" method="POST">
+                            <% for (result of locals.search_results) { %>
+                                <button type="submit" name="search_selection"
+                                    value="<%= result.type %>:<%= result.id %>">
+                                    <div class="search-result">
+                                        <img src="<%= result.image %>"
+                                            alt="Image of <%= result.title %> (<%= result.year_start %>)"
+                                            width="400px">
+                                        <h4>
+                                            <%= result.title %>
+                                        </h4>
+                                        <h5>
+                                            <%=result.year_start%>
+                                                <% if (result.year_end) { %>
+                                                    —<%= result.year_end %>
+                                                        <% } %>
+                                        </h5>
+                                        <h5>
+                                            <% if (result.authors) { %>
+                                                <%= result.authors %>
+                                                    <%} %>
+                                        </h5>
+                                    </div>
+                                </button>
+                                <% } %>
+                        </form>
             </div>
-            <% } %>
+            <% } } %>
 
     </main>
 
