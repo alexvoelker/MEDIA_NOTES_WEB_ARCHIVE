@@ -27,8 +27,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 async function get_library_size() {
-  // TODO: Make call to db to see how large the user's library is (books + movies/TV elements)
-  return -1;
+  // Make call to db to see how large the user's library is (books + movies/TV elements)
+  let book_library_size = await db.query(
+    "select count(*) from user_books_list_categories where user_id = $1",
+    [userID]
+  );
+  book_library_size = Number(book_library_size.rows[0].count);
+
+  let movie_tv_library_size = await db.query(
+    "select count(*) from user_movie_tv_list_categories where user_id = $1",
+    [userID]
+  );
+  movie_tv_library_size = Number(movie_tv_library_size.rows[0].count);
+
+  return book_library_size + movie_tv_library_size;
 }
 
 app.get("/", async (req, res) => {
@@ -126,8 +138,6 @@ async function get_api_response_base(search_query) {
         console.log(`Errored: ${error}`);
         return [];
       }
-
-      return [];
     default:
       return [];
   }
@@ -158,16 +168,231 @@ app.post("/", async (req, res) => {
   res.render("index.ejs");
 });
 
+function formatted_date_string(input_string) {
+  return new Date(input_string).toISOString().substring(0, 10);
+}
+
 async function add_item_details_db(type, item_id, userID) {
   // TODO: do this function
   //    make api call to get more details about the item
   //    add data to db, associate data with userID in another table
   //    catch errors of invalid input/response data retrieved from API call
-  console.log(type, item_id, userID);
   switch (type) {
     case "Book":
+      try {
+        // Get data about the individual book
+        let BOOK_SEARCH_API_URL = `https://openlibrary.org/works/${item_id}.json`;
+        let api_response = (await axios.get(BOOK_SEARCH_API_URL)).data;
+        if (api_response["works"] && api_response["works"][0]["key"]) {
+          item_id = api_response["works"][0]["key"].split("/");
+          item_id = item_id[item_id.length - 1];
+          BOOK_SEARCH_API_URL = `https://openlibrary.org/works/${item_id}.json`;
+          api_response = (await axios.get(BOOK_SEARCH_API_URL)).data;
+        }
+        let publishing_date =
+          api_response["publish_date"] || api_response["first_publish_date"];
+        if (publishing_date) {
+          publishing_date = formatted_date_string(publishing_date);
+        }
+
+        const book_data = {
+          book_id: item_id,
+          title: api_response["title"],
+          description: api_response["description"],
+          series: api_response["series"],
+          publish_date: publishing_date,
+        };
+
+        // get data on each of the book's authors, there can be more than one
+        let author_ids_raw = api_response["authors"];
+        const author_records = [];
+
+        if (author_ids_raw) {
+          for (let author of author_ids_raw) {
+            let key = author["author"]["key"].split("/");
+            let author_id = key[key.length - 1];
+            const author_data = (
+              await axios.get(
+                `https://openlibrary.org/authors/${author_id}.json`
+              )
+            ).data;
+            const new_author_record = {};
+            new_author_record.id = author_id;
+            new_author_record.name = author_data["name"];
+            if (author_data["bio"] && author_data["bio"]["value"]) {
+              new_author_record.author_bio = author_data["bio"]["value"];
+            }
+            author_records.push(new_author_record);
+          }
+        }
+        // console.log(book_data);
+
+        // construct the image urls of each "cover" that the book has
+        let cover_ids = api_response["covers"];
+        const cover_image_urls = [];
+        if (cover_ids) {
+          cover_ids.forEach((id) => {
+            cover_image_urls.push(
+              `https://covers.openlibrary.org/b/id/${id}-L.jpg`
+            );
+          });
+        }
+
+        // insert data into the database
+
+        // Insert into book_data table
+        try {
+          await db.query(
+            "insert into book_data (book_id, title, description, series, publish_date) values ($1, $2, $3, $4, $5)",
+            [
+              book_data.book_id,
+              book_data.title,
+              book_data.description,
+              book_data.series,
+              book_data.publish_date,
+            ]
+          );
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+        // Insert into authors table
+        try {
+          for (let author of author_records) {
+            await db.query(
+              "insert into authors (author_id, author_name, author_bio) values ($1, $2, $3)",
+              [author.id, author.name, author.author_bio]
+            );
+          }
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+        // Insert into book_authors table
+        try {
+          for (let author of author_records) {
+            await db.query(
+              "insert into book_authors (book_id, author_id) values ($1, $2)",
+              [item_id, author.id]
+            );
+          }
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+        // Insert into book_images table
+        try {
+          for (let image_url of cover_image_urls) {
+            await db.query(
+              "insert into book_images (book_id, resource_url_location) values ($1, $2)",
+              [item_id, image_url]
+            );
+          }
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+
+        // Make a record for user_books_list_categories -- connect the newly added book data to the user
+        try {
+          await db.query(
+            "insert into user_books_list_categories (user_id, book_id) values ($1, $2)",
+            [userID, item_id]
+          );
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+      } catch (error) {
+        console.log(`Errored: ${error}`);
+      }
       break;
     case "Movie_TV":
+      try {
+        // Get data about the individual book
+        let MOVIE_TV_SEARCH_API_URL = `https://api.imdbapi.dev/titles/${item_id}`;
+        let api_response = (await axios.get(MOVIE_TV_SEARCH_API_URL)).data;
+
+        const movie_tv_data = {
+          id: api_response["id"],
+          type: api_response["type"],
+          title: api_response["primaryTitle"],
+          start_year: api_response["startYear"],
+          end_year: api_response["endYear"], // this might be null
+          plot: api_response["plot"],
+        };
+
+        const movie_tv_genres = api_response["genres"];
+
+        // get the image urls
+        let MOVIE_TV_IMAGES_API_URL = `https://api.imdbapi.dev/titles/${item_id}/images`;
+        let images_api_response = (await axios.get(MOVIE_TV_IMAGES_API_URL))
+          .data;
+        const image_urls = [];
+        for (let image of images_api_response["images"]) {
+          image_urls.push(image["url"]);
+        }
+        // insert data into the database
+
+        // Insert into movie_tv_data table
+        try {
+          if (movie_tv_data.end_year) {
+            await db.query(
+              "insert into movie_tv_data (movie_tv_id, media_type, title, start_year, end_year, plot) values ($1, $2, $3, $4, $5, $6)",
+              [
+                movie_tv_data.id,
+                movie_tv_data.type,
+                movie_tv_data.title,
+                formatted_date_string(movie_tv_data.start_year),
+                formatted_date_string(movie_tv_data.end_year),
+                movie_tv_data.plot,
+              ]
+            );
+          } else {
+            await db.query(
+              "insert into movie_tv_data (movie_tv_id, media_type, title, start_year, plot) values ($1, $2, $3, $4, $5)",
+              [
+                movie_tv_data.id,
+                movie_tv_data.type,
+                movie_tv_data.title,
+                formatted_date_string(movie_tv_data.start_year),
+                movie_tv_data.plot,
+              ]
+            );
+          }
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+        // Insert into genres table
+        try {
+          for (let genre of movie_tv_genres) {
+            await db.query(
+              "insert into movie_tv_genres (movie_tv_id, genre) values ($1, $2)",
+              [movie_tv_data.id, genre]
+            );
+          }
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+        // Insert into movie_tv_images table
+        try {
+          for (let image_url of image_urls) {
+            await db.query(
+              "insert into movie_tv_images (movie_tv_id, resource_url_location) values ($1, $2)",
+              [movie_tv_data.id, image_url]
+            );
+          }
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+
+        // Make a record for user_movie_tv_list_categories -- connect the newly added movie/tv data to the user
+        try {
+          await db.query(
+            "insert into user_movie_tv_list_categories (user_id, movie_tv_id) values ($1, $2)",
+            [userID, movie_tv_data.id]
+          );
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+        }
+      } catch (error) {
+        console.log(`Errored: ${error}`);
+      }
       break;
     default:
       throw new Error("Invalid input type");
