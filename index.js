@@ -63,7 +63,7 @@ async function get_api_response_base(search_query) {
     case "Book":
       //   API call to book cover API
       const API_BOOK_QUERY_URL = "https://openlibrary.org/search.json?q=";
-      const API_COVER_URL = "https://covers.openlibrary.org/b/id/";
+      const API_COVER_URL = "https://covers.openlibrary.org/b/olid/";
       try {
         title = title.replaceAll(" ", "+");
         const api_response = (await axios.get(`${API_BOOK_QUERY_URL}${title}`))
@@ -73,9 +73,9 @@ async function get_api_response_base(search_query) {
         // Limit the number of items in the response to just the first 50
         let specific_results = api_response["docs"].slice(0, 50);
         specific_results.forEach((element) => {
-          const element_id = element["cover_i"];
           const authors = element["author_name"];
-          if (element_id && authors) {
+          if (element["cover_i"] && element["cover_edition_key"] && authors) {
+            const element_id = element["cover_edition_key"];
             const new_item = {
               type: "Book",
               id: element_id,
@@ -101,9 +101,7 @@ async function get_api_response_base(search_query) {
         const api_response = (
           await axios.get(`${API_MOVIE_TV_QUERY_URL}${title}`)
         ).data;
-        console.log(api_response);
         let specific_results = api_response["titles"];
-        console.log(specific_results);
 
         const results = [];
         specific_results.forEach((element) => {
