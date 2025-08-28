@@ -2,6 +2,58 @@
 
     <main>
         <h1>Library</h1>
+        <br>
+        <div class="library-records">
+            <% for (let item of locals.library_data) { %>
+                <a class="library-record" href="/archive/type/<%= item.type %>/id/<%=item.id%>/">
+                    <div>
+                        <% if (item.type==="Book" ) { %>
+                            <img class="library-record-image" src="<%= item.cover_image_url%>"
+                                alt="Cover art of <%= item.title%>">
+                            <h3>
+                                <%= item.title %>
+                            </h3>
+                            <h4>Author<% if (item.authors.length> 1) { %>"s"<% } %>: <%= item.authors.join(", ") %></h4>
+                    <p>
+                        <span>On reading list? <%= item.on_reading_list ? " Yes" : "No" %></span>
+                                            <br>
+                                            <span>Have read? <%= item.has_read ? "Yes" : "No" %></span>
+                                            <% if (item.has_read) { %> <br>At page <%= item.page_at %>
+                                                    <%} %>
+                                                        <% if (item.rating !==-1) { %>
+                                                            <br><span>Personal Rating: <%= item.rating %></span>
+                                                            <% } %>
+                                                                </p>
+                                                                <%} else if (item.type==="Movie_TV" ) { %>
+                                                                    <img class="library-record-image"
+                                                                        src="<%= item.cover_image_url%>"
+                                                                        alt="Cover art of <%= item.title%>">
+                                                                    <h3>
+                                                                        <%= item.title %>
+                                                                    </h3>
+                                                                    <p>
+                                                                        <span>Media type: <%=item.media_type %></span>
+                                                                        <br><span>Genres: <%=item.genres.join(", ")%></span>
+                                                                    <br><span>On watch list? <%= item.on_reading_list
+                                                                            ? " Yes" : "No" %></span>
+                                                                        <br>
+                                                                        <span>Have watched? <%= item.has_read ? "Yes"
+                                                                                : "No" %></span>
+                                                                        <% if (item.has_read) { %> <br>At page
+                                                                            <%= item.page_at %>
+                                                                                <%} %>
+                                                                                    <% if (item.rating !==-1) { %>
+                                                                                        <br><span>Personal
+                                                                                            Rating: <%= item.rating %>
+                                                                                        </span>
+                                                                                        <% } %>
+                                                                    </p>
+                                                                    <% } %>
+                    </div>
+                </a>
+                <% } %>
+        </div>
+
     </main>
 
     <%- include('partials/footer.ejs') %>

@@ -425,15 +425,109 @@ app.post("/add", async (req, res) => {
   }
 });
 
+async function get_library_data() {
+  // get the data from the database
+  // Get all of the books associated with the user
+  try {
+    const compiled_results = [];
+
+    const book_results = await db.query(
+      `
+        select * 
+        from book_data 
+        join user_books_list_categories 
+        on book_data.book_id = user_books_list_categories.book_id 
+        where user_id = $1;
+        `,
+      [userID]
+    );
+
+    for (let row of book_results.rows) {
+      try {
+        row.type = "Book";
+
+        const image_data = await db.query(
+          `select resource_url_location 
+            from book_images 
+            where book_id = $1 
+            limit 1;`,
+          [row.book_id]
+        );
+        row.cover_image_url = image_data.rows[0].resource_url_location;
+        row.id = row.book_id;
+        const authors = await db.query(
+          `select author_name
+            from authors 
+            join book_authors 
+            on authors.author_id = book_authors.author_id 
+            where book_id = $1;`,
+          [row.book_id]
+        );
+        row.authors = authors.rows.map((author) => author.author_name);
+
+        compiled_results.push(row);
+      } catch (error) {
+        console.log(`Errored: ${error}`);
+      }
+    }
+
+    // Add the movie/tv data into the list
+    const movie_tv_results = await db.query(
+      `select * 
+        from movie_tv_data
+        join user_movie_tv_list_categories
+        on movie_tv_data.movie_tv_id = user_movie_tv_list_categories.movie_tv_id
+        where user_id = $1;
+        `,
+      [userID]
+    );
+
+    for (let row of movie_tv_results.rows) {
+      try {
+        row.type = "Movie_TV";
+        // get the row's cover image
+        const cover_image = await db.query(
+          `select resource_url_location 
+            from movie_tv_images
+            where movie_tv_id = $1 
+            limit 1;`,
+          [row.movie_tv_id]
+        );
+        row.cover_image_url = cover_image.rows[0].resource_url_location;
+        row.id = row.movie_tv_id;
+        // get genres of the row
+        const genres = await db.query(
+          `select genre 
+            from movie_tv_genres
+            where movie_tv_id = $1;`,
+          [row.movie_tv_id]
+        );
+
+        row.genres = genres.rows.map((genre) => genre.genre);
+
+        compiled_results.push(row);
+      } catch (error) {
+        console.log(`Errored: ${error}`);
+      }
+    }
+
+    return compiled_results;
+  } catch (error) {
+    console.log(`Errored: ${error}`);
+    return [];
+  }
+}
+
 app.get("/library", async (req, res) => {
   const page_data = {
     page_name: "library",
-    library_size: await get_library_size(),
   };
 
-  // TODO: add db fetch for all of the items in the user's library
-
+  page_data.library_data = await get_library_data();
+  page_data.library_size = page_data.library_data.length;
   res.locals = page_data;
+
+  console.log(page_data);
   // TODO: update library.ejs to display the elements in the user's library
   res.render("library.ejs");
 });
