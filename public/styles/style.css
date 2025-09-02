@@ -69,3 +69,8 @@
     max-width: 250px;
     max-height: 250px;;
 }
+
+.archive-item-image {
+    max-width: 75%;
+    max-height: 75%;
+}

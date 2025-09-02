@@ -59,10 +59,10 @@ create table users (
     password text not null
 );
 create table user_notes_books (
-    user_id integer references users(id),
-    book_id text references book_data(book_id),
-    note_content text not null,
-    PRIMARY KEY (user_id, book_id)
+    note_id serial primary key,
+    user_id integer references users(id) not null,
+    book_id text references book_data(book_id) not null,
+    note_content text not null
 );
 create table user_books_list_categories (
     -- when the user selects a book to add to their archive, add the book (may fail if already exists in the db), 
@@ -81,10 +81,10 @@ create table user_books_list_categories (
     primary key (user_id, book_id)
 );
 create table user_notes_movies_tv (
-    user_id integer references users(id),
-    movie_tv_id text references movie_tv_data(movie_tv_id),
-    note_content text not null,
-    PRIMARY KEY (user_id, movie_tv_id)
+    note_id serial primary key,
+    user_id integer references users(id) not null,
+    movie_tv_id text references movie_tv_data(movie_tv_id) not null,
+    note_content text not null
 );
 create table user_movie_tv_list_categories (
     -- when the user selects a movie/tv show to add to their archive, add the movie/tv show (may fail if already exists in the db), 

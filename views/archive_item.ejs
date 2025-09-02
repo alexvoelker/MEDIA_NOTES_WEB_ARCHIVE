@@ -1,10 +1,156 @@
 <%- include('partials/header.ejs') %>
 
     <main>
-        <h1>Stuff</h1>
-        <h1>Stuff</h1>
-        <h1>Stuff</h1>
-        <h1>Stuff</h1>
+        <% if (!locals.item_data) { %>
+            <h1>Item not found in your library archive, please try a different one</h1>
+            <% } else { %>
+                <% if (locals.item_data.image_urls) {%>
+                    <div id="carouselExampleIndicators" class="carousel slide">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="<%= locals.item_data.image_urls[0]%>" class="d-block archive-item-image" alt="...">
+                            </div>
+                            <% for (let image_url of locals.item_data.image_urls.slice(1)) {%>
+                                <div class="carousel-item">
+                                    <img src="<%=image_url%>" class="d-block archive-item-image" alt="...">
+                                </div>
+                                <%}%>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
+                            data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators"
+                            data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <% } %>
+                        <h1>
+                            <%=locals.item_data.title%>
+                        </h1>
+                        <h3>ID: <%=locals.id%>
+                                <br>Type: <%=locals.item_data.type%>
+                        </h3>
+                        <hr>
+
+                        Rated: <%= locals.item_data.rating===-1 ? "Not yet rated" : locals.item_data.rating %>
+                            <br>
+                            <% if (locals.item_data.type==="Book" ) { %>
+                                <%if (locals.item_data.series) {%>
+                                    <p>Series:
+                                        <%=locals.item_data.series%>
+                                    </p>
+                                    <% } %>
+                                        <%if (locals.item_data.description) {%>
+                                            <p>Description:
+                                                <%=locals.item_data.description%>
+                                            </p>
+                                            <% } %>
+                                                <br>
+                                                <%if (locals.item_data.publish_date) {%>
+                                                    <p>Published:
+                                                        <%=locals.item_data.publish_date%>
+                                                    </p>
+                                                    <% } %>
+                                                        <%if (locals.item_data.authors) {%>
+                                                            <p>By:
+                                                                <%=locals.item_data.authors.join(", ")%>
+                                                </p>
+                                                <% } %>
+                                                        <p>
+                                                            At page <%=locals.item_data.page_at%>
+                                                            <br>
+                                                            On reading list? <%= locals.item_data.on_reading_list ? 
+                                                            " Yes" : "No" %>
+                                                                    <br>
+                                                                    Have Read? <%= locals.item_data.has_read ? "Yes"
+                                                                        : "No" %>
+                                                            </p>
+                                                            <% } else if (locals.item_data.type==="Movie_TV" ) { %>
+                                                                <p>
+                                                                    (
+                                                                    <%=new
+                                                                        Date(locals.item_data.start_year).getFullYear()%>
+                                                                        <% if (locals.item_data.end_year) { %>—
+                                                                            <%=new
+                                                                                Date(locals.item_data.end_year).getFullYear()%>
+                                                                                <%}%>
+                                                                                    )
+                                                                </p>
+                                                                <%if (locals.item_data.media_type) {%>
+                                                                    <p>Sub-type:
+                                                                        <%=locals.item_data.media_type%>
+                                                                    </p>
+                                                                    <% } %>
+                                                                        <%if (locals.item_data.plot) {%>
+                                                                            <p>Description:
+                                                                                <%=locals.item_data.plot%>
+                                                                            </p>
+                                                                            <% } %>
+                                                                                <%if (locals.item_data.genres) {%>
+                                                                                    <p>Genres:
+                                                                                        <%=locals.item_data.genres.join(", ")%>
+                                                </p>
+                                                <% } %>
+                                                        <p>
+                                                            On to-watch list? <%= locals.item_data.on_reading_list ? 
+                                                            " Yes" : "No" %>
+                                                                                            <br>
+                                                                                            Have watched? <%=
+                                                                                                locals.item_data.has_read
+                                                                                                ? "Yes" : "No" %>
+                                                                                    </p>
+                                                                                    <% } %>
+                                                                                        <hr>
+                                                                                        <h2>Notes</h2>
+                                                                                        <form action="" method="POST">
+                                                                                            <textarea name="message"
+                                                                                                id="message"
+                                                                                                placeholder="Add a note here..."
+                                                                                                required></textarea>
+                                                                                            <button type="submit">Add
+                                                                                                Note</button>
+                                                                                        </form>
+                                                                                        <% for (let note of
+                                                                                            locals.item_data.notes) { %>
+                                                                                            <form
+                                                                                                action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/delete"
+                                                                                                method="POST">
+                                                                                                <input type="text"
+                                                                                                    style="display: none;"
+                                                                                                    name="id"
+                                                                                                    value="<%=note.id%>">
+                                                                                                <input type="text"
+                                                                                                    style="display: none;"
+                                                                                                    name="method"
+                                                                                                    value="DELETE">
+                                                                                                <button
+                                                                                                    type="submit">Delete
+                                                                                                    Note</button>
+                                                                                            </form>
+                                                                                            <form
+                                                                                                action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/put"
+                                                                                                method="POST">
+                                                                                                <input type="text"
+                                                                                                    style="display: none;"
+                                                                                                    name="id"
+                                                                                                    value="<%=note.id%>">
+                                                                                                <input type="text"
+                                                                                                    style="display: none;"
+                                                                                                    name="method"
+                                                                                                    value="PUT">
+                                                                                                <textarea name="message"
+                                                                                                    id=""><%=note.content%></textarea>
+                                                                                                <button
+                                                                                                    type="submit">Update
+                                                                                                    Note
+                                                                                                    Contents</button>
+                                                                                            </form>
+                                                                                            <% } %>
+                                                                                                <% } %>
     </main>
 
     <%- include('partials/footer.ejs') %>

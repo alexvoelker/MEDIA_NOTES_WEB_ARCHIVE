@@ -53,6 +53,10 @@ app.get("/", async (req, res) => {
   res.render("index.ejs");
 });
 
+app.get("/search", (req, res) => {
+  res.redirect("/");
+});
+
 // Get the basic information about a user's query (the multiple options of the search page query)
 async function get_api_response_base(search_query) {
   const type = search_query.type;
@@ -169,11 +173,10 @@ app.post("/", async (req, res) => {
 });
 
 function formatted_date_string(input_string) {
-  return new Date(input_string).toISOString().substring(0, 10);
+  return new Date(new String(input_string)).toISOString().substring(0, 10);
 }
 
 async function add_item_details_db(type, item_id, userID) {
-  // TODO: do this function
   //    make api call to get more details about the item
   //    add data to db, associate data with userID in another table
   //    catch errors of invalid input/response data retrieved from API call
@@ -527,27 +530,269 @@ app.get("/library", async (req, res) => {
   page_data.library_size = page_data.library_data.length;
   res.locals = page_data;
 
-  console.log(page_data);
-  // TODO: update library.ejs to display the elements in the user's library
   res.render("library.ejs");
 });
 
 // add functions to modify the user's watch-list status? in library
 // add functions to remove item from user's library?
 
-app.get("/archive/type/:type/id/:id", async (req, res) => {
+async function get_item_archive_data(type, item_id) {
+  try {
+    switch (type) {
+      case "Book":
+        const book_results = await db.query(
+          `
+        select * 
+        from book_data 
+        join user_books_list_categories 
+        on book_data.book_id = user_books_list_categories.book_id 
+        where user_id = $1 and book_data.book_id = $2;
+        `,
+          [userID, item_id]
+        );
+
+        if (book_results.rows.length !== 1) {
+          throw new Error(
+            `An invalid number of return rows were provided (get_item_archive_data): ${book_results.rows.length}`
+          );
+        }
+
+        try {
+          const item = book_results.rows[0];
+
+          item.type = "Book";
+
+          const image_data = await db.query(
+            `select resource_url_location 
+            from book_images 
+            where book_id = $1`,
+            [item.book_id]
+          );
+          item.image_urls = image_data.rows.map(
+            (img) => img.resource_url_location
+          );
+          item.id = item.book_id;
+          const authors = await db.query(
+            `select author_name
+            from authors 
+            join book_authors 
+            on authors.author_id = book_authors.author_id 
+            where book_id = $1;`,
+            [item.book_id]
+          );
+          item.authors = authors.rows.map((author) => author.author_name);
+
+          const notes = await db.query(
+            `select note_id, note_content 
+            from user_notes_books
+            where user_id = $1 and book_id = $2
+            order by note_id`,
+            [userID, item_id]
+          );
+          item.notes = notes.rows.map((note) => {
+            return { id: note.note_id, content: note.note_content };
+          });
+
+          return item;
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+          break;
+        }
+      case "Movie_TV":
+        const movie_tv_results = await db.query(
+          `select * 
+        from movie_tv_data
+        join user_movie_tv_list_categories
+        on movie_tv_data.movie_tv_id = user_movie_tv_list_categories.movie_tv_id
+        where user_id = $1 and movie_tv_data.movie_tv_id = $2;
+        `,
+          [userID, item_id]
+        );
+
+        if (movie_tv_results.rows.length !== 1) {
+          throw new Error(
+            `An invalid number of return rows were provided (get_item_archive_data): ${movie_tv_results.rows.length}`
+          );
+        }
+
+        try {
+          const item = movie_tv_results.rows[0];
+          item.type = "Movie_TV";
+          // get the item's images
+          const cover_image = await db.query(
+            `select resource_url_location 
+            from movie_tv_images
+            where movie_tv_id = $1`,
+            [item.movie_tv_id]
+          );
+          item.image_urls = cover_image.rows.map(
+            (img) => img.resource_url_location
+          );
+
+          item.id = item.movie_tv_id;
+          // get genres of the item
+          const genres = await db.query(
+            `select genre 
+            from movie_tv_genres
+            where movie_tv_id = $1;`,
+            [item.movie_tv_id]
+          );
+
+          item.genres = genres.rows.map((genre) => genre.genre);
+
+          const notes = await db.query(
+            `select note_id, note_content 
+            from user_notes_movies_tv
+            where user_id = $1 and movie_tv_id = $2
+            order by note_id`,
+            [userID, item_id]
+          );
+          item.notes = notes.rows.map((note) => {
+            return { id: note.note_id, content: note.note_content };
+          });
+
+          return item;
+        } catch (error) {
+          console.log(`Errored: ${error}`);
+          break;
+        }
+      default:
+        throw new Error(
+          `Invalid input type provided to get_item_archive_data: ${type}`
+        );
+    }
+  } catch (error) {
+    console.log(`Errored: ${error}`);
+    return null;
+  }
+}
+
+app.get("/archive/:type/:id", async (req, res) => {
   const page_data = {
     page_name: "library",
     library_size: await get_library_size(),
   };
 
-  // TODO: do fetch to get the user's notes / data regarding the specific item to be displayed
+  const type = req.params["type"];
+  const item_id = req.params["id"];
+  page_data.type = type;
+  page_data.id = item_id;
+  page_data.item_data = await get_item_archive_data(type, item_id);
 
+  console.log(page_data);
   res.locals = page_data;
   res.render("archive_item.ejs");
 });
 
 // add functions to modify a user's data based on this page
+app.post("/archive/:type/:id", async (req, res) => {
+  const type = req.params["type"];
+  const item_id = req.params["id"];
+
+  try {
+    if (!req.body["message"]) {
+      throw new Error("invalid POST request, no message content");
+    }
+
+    switch (type) {
+      case "Book":
+        let response = await db.query(
+          `insert into user_notes_books (user_id, book_id, note_content) 
+            values ($1, $2, $3)`,
+          [userID, item_id, req.body["message"]]
+        );
+        break;
+      case "Movie_TV":
+        response = await db.query(
+          `insert into user_notes_movies_tv (user_id, movie_tv_id, note_content) 
+            values ($1, $2, $3)`,
+          [userID, item_id, req.body["message"]]
+        );
+        break;
+      default:
+        throw new Error(
+          `Invalid input type provided to DELETE '/archive/:type/:id' : ${type}`
+        );
+    }
+  } catch (error) {
+    console.log(`Errored: ${error}`);
+  }
+
+  res.redirect(`/archive/${type}/${item_id}`);
+});
+
+app.post("/archive/:type/:id/put", async (req, res) => {
+  const type = req.params["type"];
+  const item_id = req.params["id"];
+
+  try {
+    if (!req.body["id"] || !req.body["message"]) {
+      throw new Error("invalid PUT request, no message content or note id");
+    }
+
+    switch (type) {
+      case "Book":
+        let response = await db.query(
+          `update user_notes_books
+          set note_content = $1
+          where note_id = $2 and user_id = $3`,
+          [req.body["message"], req.body["id"], userID]
+        );
+        break;
+      case "Movie_TV":
+        response = await db.query(
+          `update user_notes_movies_tv
+          set note_content = $1
+          where note_id = $2 and user_id = $3`,
+          [req.body["message"], req.body["id"], userID]
+        );
+        break;
+      default:
+        throw new Error(
+          `Invalid input type provided to DELETE '/archive/:type/:id' : ${type}`
+        );
+    }
+  } catch (error) {
+    console.log(`Errored: ${error}`);
+  }
+
+  res.redirect(`/archive/${type}/${item_id}`);
+});
+
+app.post("/archive/:type/:id/delete", async (req, res) => {
+  const type = req.params["type"];
+  const item_id = req.params["id"];
+
+  try {
+    if (!req.body["id"]) {
+      throw new Error("invalid DELETE request, no note id");
+    }
+    switch (type) {
+      case "Book":
+        let response = await db.query(
+          `delete from user_notes_books 
+                where user_id = $1 and note_id = $2`,
+          [userID, req.body["id"]]
+        );
+        break;
+      case "Movie_TV":
+        response = await db.query(
+          `delete from user_notes_movie_tv 
+                where user_id = $1 and note_id = $2`,
+          [userID, req.body["id"]]
+        );
+        break;
+      default:
+        throw new Error(
+          `Invalid input type provided to DELETE '/archive/:type/:id' : ${type}`
+        );
+    }
+  } catch (error) {
+    console.log(`Errored: ${error}`);
+  }
+
+  res.redirect(`/archive/${type}/${item_id}`);
+});
 
 app.get("/account", async (req, res) => {
   const page_data = {
