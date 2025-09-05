@@ -1,20 +1,28 @@
 <%- include('partials/header.ejs') %>
 
-    <main>
+    <main class="container archive-item-content">
         <% if (!locals.item_data) { %>
-            <h1>Item not found in your library archive, please try a different one</h1>
+            <div class="row card">
+                <h2 class="card-header">
+                    Item not found in your library archive, please try a different one
+                </h2>
+            </div>
             <% } else { %>
                 <% if (locals.item_data.image_urls) {%>
-                    <div id="carouselExampleIndicators" class="carousel slide">
-                        <div class="carousel-inner">
-                            <div class="carousel-item active">
-                                <img src="<%= locals.item_data.image_urls[0]%>" class="d-block archive-item-image" alt="...">
-                            </div>
-                            <% for (let image_url of locals.item_data.image_urls.slice(1)) {%>
-                                <div class="carousel-item">
-                                    <img src="<%=image_url%>" class="d-block archive-item-image" alt="...">
+                    <div class="row card">
+                        <div class="archive-image-container">
+                            <div id="carouselExampleIndicators" class="carousel slide">
+                                <div class="carousel-inner">
+                                    <div class="carousel-item active">
+                                        <img src="<%= locals.item_data.image_urls[0]%>" class="card-img-top" alt="...">
+                                    </div>
+                                    <% for (let image_url of locals.item_data.image_urls.slice(1)) {%>
+                                        <div class="carousel-item">
+                                            <img src="<%=image_url%>" class="card-img-top" alt="...">
+                                        </div>
+                                        <%}%>
                                 </div>
-                                <%}%>
+                            </div>
                         </div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators"
                             data-bs-slide="prev">
@@ -26,131 +34,266 @@
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
+                        <small class="card-text text-body-secondary">Images of <%= locals.item_data.title %>.</small>
                     </div>
                     <% } %>
-                        <h1>
-                            <%=locals.item_data.title%>
-                        </h1>
-                        <h3>ID: <%=locals.id%>
-                                <br>Type: <%=locals.item_data.type%>
-                        </h3>
-                        <hr>
-
-                        Rated: <%= locals.item_data.rating===-1 ? "Not yet rated" : locals.item_data.rating %>
-                            <br>
-                            <% if (locals.item_data.type==="Book" ) { %>
-                                <%if (locals.item_data.series) {%>
-                                    <p>Series:
-                                        <%=locals.item_data.series%>
-                                    </p>
-                                    <% } %>
-                                        <%if (locals.item_data.description) {%>
-                                            <p>Description:
-                                                <%=locals.item_data.description%>
+                        <br>
+                        <div class="row">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h1>
+                                        <strong>
+                                            <%=locals.item_data.title%>
+                                        </strong>
+                                        <h2>
+                                            <% if (locals.item_data.type==="Movie_TV" ) { %>
+                                                ( <%=new Date(locals.item_data.start_year).getFullYear()%>
+                                                    <% if (locals.item_data.end_year) { %>— <%= new
+                                                            Date(locals.item_data.end_year).getFullYear()%>
+                                                            <%}%> )
+                                                                <% } %>
+                                        </h2>
+                                    </h1>
+                                </div>
+                                <div class="card-body">
+                                    <h4>
+                                        <strong>ID:</strong>
+                                        <%=locals.id%>
+                                    </h4>
+                                    <h4>
+                                        <strong>Type:</strong>
+                                        <%=locals.item_data.type%>
+                                    </h4>
+                                    <h4>
+                                        <strong>Rated:</strong>
+                                        <%= locals.item_data.rating===-1 ? "Not yet rated" : locals.item_data.rating %>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <% if (locals.item_data.type==="Book" ) { %>
+                            <div class="row card">
+                                <div class="card-header">
+                                    General Details
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <%if (locals.item_data.series) {%>
+                                        <li class="list-group-item">
+                                            <strong>Series</strong>
+                                            <p>
+                                                <%=locals.item_data.series%>
                                             </p>
-                                            <% } %>
-                                                <br>
-                                                <%if (locals.item_data.publish_date) {%>
-                                                    <p>Published:
-                                                        <%=locals.item_data.publish_date%>
+                                        </li>
+                                        <% } %>
+                                            <%if (locals.item_data.description) {%>
+                                                <li class="list-group-item">
+                                                    <strong>Description</strong>
+                                                    <p>
+                                                        <%=locals.item_data.description%>
                                                     </p>
                                                     <% } %>
+                                                </li>
+                                                <%if (locals.item_data.publish_date) {%>
+                                                    <li class="list-group-item">
+                                                        <strong>
+                                                            Published:
+                                                        </strong>
+                                                        <p>
+                                                            <%= new Date(locals.item_data.publish_date).toDateString()
+                                                                %>
+                                                        </p>
+                                                    </li>
+                                                    <% } %>
                                                         <%if (locals.item_data.authors) {%>
-                                                            <p>By:
-                                                                <%=locals.item_data.authors.join(", ")%>
-                                                </p>
-                                                <% } %>
-                                                        <p>
-                                                            At page <%=locals.item_data.page_at%>
-                                                            <br>
-                                                            On reading list? <%= locals.item_data.on_reading_list ? 
-                                                            " Yes" : "No" %>
-                                                                    <br>
-                                                                    Have Read? <%= locals.item_data.has_read ? "Yes"
-                                                                        : "No" %>
-                                                            </p>
-                                                            <% } else if (locals.item_data.type==="Movie_TV" ) { %>
+                                                            <li class="list-group-item">
+                                                                <strong>Author(s):</strong>
                                                                 <p>
-                                                                    (
-                                                                    <%=new
-                                                                        Date(locals.item_data.start_year).getFullYear()%>
-                                                                        <% if (locals.item_data.end_year) { %>—
-                                                                            <%=new
-                                                                                Date(locals.item_data.end_year).getFullYear()%>
-                                                                                <%}%>
-                                                                                    )
-                                                                </p>
-                                                                <%if (locals.item_data.media_type) {%>
-                                                                    <p>Sub-type:
-                                                                        <%=locals.item_data.media_type%>
-                                                                    </p>
-                                                                    <% } %>
-                                                                        <%if (locals.item_data.plot) {%>
-                                                                            <p>Description:
-                                                                                <%=locals.item_data.plot%>
-                                                                            </p>
-                                                                            <% } %>
-                                                                                <%if (locals.item_data.genres) {%>
-                                                                                    <p>Genres:
-                                                                                        <%=locals.item_data.genres.join(", ")%>
+                                                                    <%=locals.item_data.authors.join(", ")%>
                                                 </p>
+                                                    </li>
                                                 <% } %>
-                                                        <p>
-                                                            On to-watch list? <%= locals.item_data.on_reading_list ? 
-                                                            " Yes" : "No" %>
-                                                                                            <br>
-                                                                                            Have watched? <%=
-                                                                                                locals.item_data.has_read
+                                    </ul>
+                                </div>
+                        <br>
+                        <div class=" row card">
+                                                                        <div class="card-header">
+                                                                            User Details
+                                                                        </div>
+                                                                        <div class="card-body">
+                                                            <li class="list-group-item">
+                                                                <strong>At Page:</strong>
+                                                                <p>
+                                                                    <%=locals.item_data.page_at%>
+                                                                </p>
+                                                            </li>
+                                                            <li class="list-group-item">
+                                                                <strong>On reading list?</strong>
+                                                                <p>
+                                                                    <%=locals.item_data.on_reading_list ? "Yes" : "No"
+                                                                        %>
+                                                                </p>
+                                                            </li>
+                                                            <li class="list-group-item">
+                                                                <strong>Have Read?</strong>
+                                                                <p>
+                                                                    <%= locals.item_data.has_read ? "Yes" : "No" %>
+                                                                </p>
+                                                            </li>
+                            </div>
+                            </div>
+                            <br>
+                            <% } else if (locals.item_data.type==="Movie_TV" ) { %>
+                                <div class="row card">
+                                    <div class="card-header">
+                                        General Details
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="list-group list-group-flush">
+                                            <%if (locals.item_data.media_type) {%>
+                                                <li class="list-group-item">
+                                                    <strong>Sub-Type:</strong>
+                                                    <p>
+                                                        <%=locals.item_data.media_type%>
+                                                    </p>
+                                                </li>
+                                                <% } %>
+                                                    <%if (locals.item_data.plot) {%>
+                                                        <li class="list-group-item">
+                                                            <strong>Description:</strong>
+                                                            <p>
+                                                                <%=locals.item_data.plot%>
+                                                            </p>
+                                                        </li>
+                                                        <% } %>
+                                                            <%if (locals.item_data.genres) {%>
+                                                                <li class="list-group-item">
+                                                                    <strong>Genres:</strong>
+                                                                    <p>
+                                                                        <%=locals.item_data.genres.join(", ")%>
+                                                    </p>
+                                                </li>
+                                                <% } %>
+                                            </ul>
+                                        </div>
+                                </div>
+                                <br>
+                                <div class=" row card">
+                                                                            <div class="card-header">
+                                                                                User Details
+                                                                            </div>
+                                                                            <div class="card-body">
+                                                                                <ul class="list-group list-group-flush">
+                                                                                    <li class="list-group-item">
+                                                                                        <strong>At Episode:</strong>
+                                                                                        <p>
+                                                                                            <%=locals.item_data.page_at%>
+                                                                                        </p>
+                                                                                    </li>
+                                                                                    <li class="list-group-item">
+                                                                                        <strong>On to-watch
+                                                                                            list?</strong>
+                                                                                        <p>
+                                                                                            <%=locals.item_data.on_reading_list
                                                                                                 ? "Yes" : "No" %>
-                                                                                    </p>
-                                                                                    <% } %>
-                                                                                        <hr>
-                                                                                        <h2>Notes</h2>
-                                                                                        <form action="" method="POST">
-                                                                                            <textarea name="message"
-                                                                                                id="message"
-                                                                                                placeholder="Add a note here..."
-                                                                                                required></textarea>
-                                                                                            <button type="submit">Add
-                                                                                                Note</button>
-                                                                                        </form>
-                                                                                        <% for (let note of
-                                                                                            locals.item_data.notes) { %>
-                                                                                            <form
-                                                                                                action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/delete"
-                                                                                                method="POST">
-                                                                                                <input type="text"
-                                                                                                    style="display: none;"
-                                                                                                    name="id"
-                                                                                                    value="<%=note.id%>">
-                                                                                                <input type="text"
-                                                                                                    style="display: none;"
-                                                                                                    name="method"
-                                                                                                    value="DELETE">
-                                                                                                <button
-                                                                                                    type="submit">Delete
-                                                                                                    Note</button>
-                                                                                            </form>
-                                                                                            <form
-                                                                                                action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/put"
-                                                                                                method="POST">
-                                                                                                <input type="text"
-                                                                                                    style="display: none;"
-                                                                                                    name="id"
-                                                                                                    value="<%=note.id%>">
-                                                                                                <input type="text"
-                                                                                                    style="display: none;"
-                                                                                                    name="method"
-                                                                                                    value="PUT">
-                                                                                                <textarea name="message"
-                                                                                                    id=""><%=note.content%></textarea>
-                                                                                                <button
-                                                                                                    type="submit">Update
-                                                                                                    Note
-                                                                                                    Contents</button>
-                                                                                            </form>
-                                                                                            <% } %>
-                                                                                                <% } %>
+                                                                                        </p>
+                                                                                    </li>
+                                                                                    <li class="list-group-item">
+                                                                                        <strong>Have Watched?</strong>
+                                                                                        <p>
+                                                                                            <%= locals.item_data.has_read
+                                                                                                ? "Yes" : "No" %>
+                                                                                        </p>
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                    </div>
+                                    <br>
+                                    <% } %>
+                                        <br>
+                                        <div class=" row card">
+                                            <h2 class="card-header">Notes</h2>
+                                            <div class="card-body">
+                                                <div class="input-group mb-3">
+                                                </div>
+                                                <form action="" method="POST">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">New Note</span>
+
+                                                        <textarea name="message" id="message" class="form-control"
+                                                            aria-label="With textarea" placeholder="Add a note here..."
+                                                            required></textarea>
+
+                                                        <button type="submit" class="btn btn-outline-secondary"
+                                                            id="button-addon1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                height="24" fill="currentColor"
+                                                                class="bi bi-journal-plus" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M8 5.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V6a.5.5 0 0 1 .5-.5" />
+                                                                <path
+                                                                    d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2" />
+                                                                <path
+                                                                    d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z" />
+                                                            </svg>
+                                                            New Note
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                                <br>
+                                                <% for (let note of locals.item_data.notes) { %>
+                                                    <div class="card note-content">
+                                                        <span class="input-group-text"><%=note.id%></span>
+                                                        <form
+                                                            action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/put"
+                                                            method="POST">
+                                                            <div class="input-group">
+
+                                                                <input type="text" style="display: none;" name="id"
+                                                                    value="<%=note.id%>">
+                                                                <input type="text" style="display: none;" name="method"
+                                                                    value="PUT">
+                                                                <textarea name="message"
+                                                                    id=""><%=note.content%></textarea>
+                                                                <button type="submit" class="btn btn-outline-secondary">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                        height="24" fill="currentColor"
+                                                                        class="bi bi-marker-tip" viewBox="0 0 16 16">
+                                                                        <path
+                                                                            d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5 6.064-1.281-4.696A.5.5 0 0 0 9.736 9H6.264a.5.5 0 0 0-.483.368l-1.28 4.696A6.97 6.97 0 0 0 8 15c1.275 0 2.47-.34 3.5-.936m.873-.598a7 7 0 1 0-8.746 0l1.19-4.36a1.5 1.5 0 0 1 1.31-1.1l1.155-3.851c.213-.713 1.223-.713 1.436 0l1.156 3.851a1.5 1.5 0 0 1 1.31 1.1z" />
+                                                                    </svg>
+                                                                    Update Note
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                        <form
+                                                            action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/delete"
+                                                            method="POST">
+                                                            <input type="text" style="display: none;" name="id"
+                                                                value="<%=note.id%>">
+                                                            <input type="text" style="display: none;" name="method"
+                                                                value="DELETE">
+                                                            <button type="submit" class="btn btn-outline-danger">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                                                    height="24" fill="currentColor"
+                                                                    class="bi bi-journal-x" viewBox="0 0 16 16">
+                                                                    <path fill-rule="evenodd"
+                                                                        d="M6.146 6.146a.5.5 0 0 1 .708 0L8 7.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 8l1.147 1.146a.5.5 0 0 1-.708.708L8 8.707 6.854 9.854a.5.5 0 0 1-.708-.708L7.293 8 6.146 6.854a.5.5 0 0 1 0-.708" />
+                                                                    <path
+                                                                        d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2" />
+                                                                    <path
+                                                                        d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1z" />
+                                                                </svg>
+                                                                Delete Note
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    <br>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                </div>
+                                <% } %>
     </main>
 
     <%- include('partials/footer.ejs') %>

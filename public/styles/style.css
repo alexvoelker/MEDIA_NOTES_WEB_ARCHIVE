@@ -1,16 +1,11 @@
-/* .nav-library-button {
-    color: whitesmoke;
-} */
-
-.nav-library-button:hover {
-    transition-duration: 250ms;
-    border-radius: 5px;
-    background-color: rgb(231, 176, 8);
-    color: black;
+ .main-header {
+    position: sticky;
+    top: 0;
+    background-color: rgba(27, 37, 59, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 9999;
 }
-/* .nav-library-button {
-    color: whitesmoke;
-} */
 
 .nav-library-button:hover {
     transition-duration: 250ms;
@@ -23,54 +18,112 @@
     color: whitesmoke;
 } */
 
-.nav-library-button:hover {
-    transition-duration: 250ms;
-    border-radius: 5px;
-    background-color: rgb(231, 176, 8);
-    color: black;
+/* Main page: the search page */
+.search-form-title {
+    text-align: center;
+    padding: 2rem;
 }
-
-/* main {
-    background: linear-gradient(to bottom right --bs-body-bg, --bs-indigo);
-} */
 
 .search-form {
     display: grid;
     columns: 1;
     margin: 2rem;
     row-gap: 1rem;
+    padding-bottom: 2rem;
+}
+
+.search-form > button {
+    width: 100%;
+}
+
+.search-results {
+    display: flex;
+    gap: 1rem;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5em;
+    padding: 1rem;
+    text-decoration: none;
+    color: whitesmoke;
+}
+
+.search-selection {
+    border: 0;
+    background-color: inherit;
+}
+
+.search-selection:hover {
+    transition-duration: 250ms;
+    filter: drop-shadow(8px 8px 8px whitesmoke);
+}
+/* Library Overview Page */
+.library-title {
     text-align: center;
+    padding: 2rem;
+    border-bottom: 1px solid gray;
 }
 
 .library-records {
     display: flex;
     flex-flow: row wrap;
-    gap: 2rem;
+    gap: 2rem 2rem;
     justify-items: center;
 }
 
 .library-record {
-    background-color: gainsboro;
     align-items: center;
     justify-content: center;
-    border-radius: 1em;
-    padding: 2rem;
+    border-radius: 0.5em;
+    padding: 1rem;
     text-decoration: none;
-    color: black;
+    color: whitesmoke;
 }
 
 .library-record:hover {
     transition-duration: 250ms;
-    border-radius: 0.1em;
-    filter: drop-shadow(8px 8px 8px black);
+    filter: drop-shadow(8px 8px 8px whitesmoke);
 }
 
 .library-record-image {
-    max-width: 250px;
-    max-height: 250px;;
+    max-width: 350px;
+    max-height: 350px;;
 }
 
-.archive-item-image {
-    max-width: 75%;
-    max-height: 75%;
+/* Archive Item */
+
+.archive-image-container {
+    height: 30vh;
+    /* overflow: hidden; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.archive-image-container .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: scale-down;
+    object-position: center;
+    display: block;
+}
+
+.custom-tooltip {
+  --bs-tooltip-bg: var(--bd-violet-bg);
+  --bs-tooltip-color: var(--bs-white);
+}
+
+.note-content {
+    display: flex;
+}
+
+.note-content > button {
+    flex-flow: row wrap;
+}
+
+textarea {
+    field-sizing: content;
+    min-width: 100%;
+    background-color: black;
+    color: whitesmoke;
 }

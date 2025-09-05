@@ -12,61 +12,59 @@
 </head>
 
 <body>
-    <header>
-        <div class="container">
-            <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-                <a href="/"
-                    class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
-                        class="bi bi-device-ssd-fill" viewBox="0 0 16 16">
-                        <path d="M5 8V4h6v4z" />
-                        <path
-                            d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m9 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M3.5 11a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m9.5-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4.75 3h6.5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-.75.75h-6.5A.75.75 0 0 1 4 8.25v-4.5A.75.75 0 0 1 4.75 3M5 12h6a1 1 0 0 1 1 1v2h-1v-2h-.75v2h-1v-2H8.5v2h-1v-2h-.75v2h-1v-2H5v2H4v-2a1 1 0 0 1 1-1" />
-                    </svg>
-                    <span class="fs-3">
-                        Media Notes Archive
-                    </span>
-                </a>
+    <div class="container main-header">
+        <header class="d-flex flex-wrap justify-content-center py-3  border-bottom">
+            <a href="/"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                    class="bi bi-device-ssd-fill" viewBox="0 0 16 16">
+                    <path d="M5 8V4h6v4z" />
+                    <path
+                        d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m9 0a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M3.5 11a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1m9.5-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4.75 3h6.5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-.75.75h-6.5A.75.75 0 0 1 4 8.25v-4.5A.75.75 0 0 1 4.75 3M5 12h6a1 1 0 0 1 1 1v2h-1v-2h-.75v2h-1v-2H8.5v2h-1v-2h-.75v2h-1v-2H5v2H4v-2a1 1 0 0 1 1-1" />
+                </svg>
+                <span class="fs-3">
+                    Media Notes Archive
+                </span>
+            </a>
 
-                <ul class="nav nav-pills justify-content-end">
-                    <!-- Search Page Link -->
-                    <li class="nav-item"><a href="/" class="nav-link nav-search-button" aria-current="page">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-search" viewBox="0 0 16 16">
-                                <path
-                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
-                            </svg>
-                            Search
-                        </a>
-                    </li>
+            <ul class="nav nav-pills justify-content-end">
+                <!-- Search Page Link -->
+                <li class="nav-item"><a href="/" class="nav-link nav-search-button" aria-current="page">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-search" viewBox="0 0 16 16">
+                            <path
+                                d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                        </svg>
+                        Search
+                    </a>
+                </li>
 
-                    <!-- My Library Page Link -->
-                    <li class="nav-item"><a href="/library" class="nav-link nav-library-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-library h-4 w-4"
-                                data-darkreader-inline-stroke="" style="--darkreader-inline-stroke: currentColor;">
-                                <path d="m16 6 4 14"></path>
-                                <path d="M12 6v14"></path>
-                                <path d="M8 8v12"></path>
-                                <path d="M4 4v16"></path>
-                            </svg><span>My Library</span>
-                            <span>
-                                (<%= locals.library_size %>)
-                            </span>
-                        </a>
-                    </li>
+                <!-- My Library Page Link -->
+                <li class="nav-item"><a href="/library" class="nav-link nav-library-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-library h-4 w-4" data-darkreader-inline-stroke=""
+                            style="--darkreader-inline-stroke: currentColor;">
+                            <path d="m16 6 4 14"></path>
+                            <path d="M12 6v14"></path>
+                            <path d="M8 8v12"></path>
+                            <path d="M4 4v16"></path>
+                        </svg><span>My Library</span>
+                        <span>
+                            (<%= locals.library_size %>)
+                        </span>
+                    </a>
+                </li>
 
-                    <!-- Account Page Link -->
-                    <li class="nav-item"><a href="/account" class="nav-link nav-account-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                class="bi bi-person-fill" viewBox="0 0 16 16">
-                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
-                            </svg>
-                            Account
-                        </a>
-                    </li>
-                </ul>
-            </header>
-        </div>
-    </header>
+                <!-- Account Page Link -->
+                <li class="nav-item"><a href="/account" class="nav-link nav-account-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                            class="bi bi-person-fill" viewBox="0 0 16 16">
+                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                        </svg>
+                        Account
+                    </a>
+                </li>
+            </ul>
+        </header>
+    </div>

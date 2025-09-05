@@ -1,75 +1,86 @@
 <%- include('partials/header.ejs') %>
 
     <main>
-        <h1>Search for Media</h1>
-        <h2>To add to your archive</h2>
-        <hr>
-        <br>
+        <div class="search-form-title">
+            <h1>Search for Media</h1>
+            <h2>To add to your archive</h2>
+        </div>
         <form action="/" method="POST" class="search-form">
-            <input type="text" name="query_string" required
-                placeholder="Search for a TV Show, Movie, or Book to add to your archive (by title)" <% if
-                (locals.search_query) { %>
-            value="<%= locals.search_query.query %>"
-                <% } %>
-                    >
-                    <label for="media_type">Additionally, select the type of media to search for:</label>
-                    <select name="query_type" id="media_type" required>
-                        <option value="Movie_TV" <% if (locals.search_query && locals.search_query.type=="Movie_TV" ) {
-                            %>
-                            selected
-                            <% } %>
-                                >
-                                Movie / TV Show
-                        </option>
-                        <option value="Book" <% if (locals.search_query && locals.search_query.type=="Book" ) { %>
-                            selected
-                            <% } %>
-                                >Book
-                        </option>
-                    </select>
-                    <button type="submit">Submit</button>
-                    <button type="reset">Clear</button>
-        </form>
-        <br>
+            <div class="input-group mb-3">
+                <span class="seacrh-form input-group-text" id="inputGroup-sizing-default">Media Title</span>
 
+                <input type="text" name="query_string" required class="form-control"
+                    placeholder="Search for a TV Show, Movie, or Book to add to your archive (by title)" <% if
+                    (locals.search_query) { %>
+                value="<%= locals.search_query.query %>"<%}%>
+                        >
+            </div>
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="media_type">
+                    Additionally, select the type of media to search for:
+                </label>
+                <select class="form-select" name="query_type" id="media_type" required>
+                    <option value="Movie_TV" <% if (locals.search_query && locals.search_query.type=="Movie_TV" ) { %>
+                        selected
+                        <% } %>
+                            >
+                            Movie / TV Show
+                    </option>
+                    <option value="Book" <% if (locals.search_query && locals.search_query.type=="Book" ) { %>
+                        selected
+                        <% } %>
+                            >Book
+                    </option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-outline-secondary">Submit</button>
+            <button type="reset" class="btn btn-outline-secondary">Clear</button>
+        </form>
         <% if (locals.search_results) { %>
             <div class="search-results">
-                <hr>
                 <% if (locals.search_results.length===0) { %>
                     <h3>No results, please try a different query.</h3>
                     <% } else { %>
                         <h3>Select the item to add to your media library</h3>
                         <h4>
-                            <%= locals.search_results.length %> Results
+                            (<%= locals.search_results.length %> Results)
                         </h4>
-                        <hr>
+
                         <br>
-                        <!-- Create a card for each search result -->
+                        <br>
                         <form action="/add" method="POST">
-                            <% for (result of locals.search_results) { %>
-                                <button type="submit" name="search_selection"
-                                    value="<%= result.type %>:<%= result.id %>">
-                                    <div class="search-result">
-                                        <img src="<%= result.image %>"
-                                            alt="Image of <%= result.title %> (<%= result.year_start %>)"
-                                            width="400px">
-                                        <h4>
-                                            <%= result.title %>
-                                        </h4>
-                                        <h5>
-                                            <%=result.year_start%>
-                                                <% if (result.year_end) { %>
-                                                    —<%= result.year_end %>
-                                                        <% } %>
-                                        </h5>
-                                        <h5>
-                                            <% if (result.authors) { %>
-                                                <%= result.authors %>
-                                                    <%} %>
-                                        </h5>
-                                    </div>
-                                </button>
-                                <% } %>
+                            <div class="search-results">
+                                <% for (result of locals.search_results) { %>
+                                    <button type="submit" name="search_selection" class="search-selection"
+                                        value="<%= result.type %>:<%= result.id %>">
+                                        <div class="search-result card">
+                                            <div class="card-header">
+                                                <h4>
+                                                    <%= result.title %>
+                                                </h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <img src="<%= result.image %>"
+                                                    alt="Image of <%= result.title %><% if (result.year_start) {%> (<%= result.year_start %>) <%}%>"
+                                                    height="400px">
+                                                <% if (result.year_start) { %>
+                                                    <h5>
+                                                        <%=result.year_start%>
+                                                            <% if (result.year_end) { %>
+                                                                —<%= result.year_end %>
+                                                                    <% } %>
+                                                    </h5>
+                                                    <% } %>
+                                                        <% if (result.authors) { %>
+                                                            <h5>
+                                                                <%= result.authors %>
+                                                            </h5>
+                                                            <%} %>
+                                            </div>
+                                        </div>
+                                    </button>
+                                    <% } %>
+                            </div>
                         </form>
             </div>
             <% } } %>

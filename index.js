@@ -406,9 +406,7 @@ app.post("/add", async (req, res) => {
   // Add an item to the user's library
   try {
     let selection = req.body["search_selection"];
-    console.log(selection);
     selection = selection.split(":");
-    console.log(selection);
 
     const selection_item = {
       type: selection[0],
@@ -679,7 +677,6 @@ app.get("/archive/:type/:id", async (req, res) => {
   page_data.id = item_id;
   page_data.item_data = await get_item_archive_data(type, item_id);
 
-  console.log(page_data);
   res.locals = page_data;
   res.render("archive_item.ejs");
 });
