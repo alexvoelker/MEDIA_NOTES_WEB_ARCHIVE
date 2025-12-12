@@ -1,7 +1,7 @@
 # Media Notes Web Archive
 
 ## Overview
-> [!IMPORTANT] IMPORTANT NOTE
+> [!IMPORTANT]
 > This is an archive of a beta version of the program. Not to be used in production.
 
 A website utalizing PostgreSQL, and Node to list a selection of book, tv, and movie watchlists.
