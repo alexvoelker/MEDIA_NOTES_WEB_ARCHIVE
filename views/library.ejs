@@ -3,6 +3,7 @@
     <main>
         <h1 class="library-title">Library</h1>
         <div class="library-records">
+            <!-- TODO: add option to allow user to pick what image to use for the archive card (of db item-stored values) -->
             <% if (locals.library_size===0) { %>
                 <h2>Nothing yere yet! Add items in the search page.</h2>
                 <% } %>
@@ -76,10 +77,7 @@
                                         <div class="col-md-8">
                                             <div class="card-body">
                                                 <h4>
-                                                    (<%=new Date(item.start_year).getFullYear()%>
-                                                        <% if (item.end_year) { %>—
-                                                            <%=new Date(item.end_year).getFullYear()%>
-                                                                <%}%>)
+                                                    <%= item.date_string %>
                                                 </h4>
 
                                                 <ul class="list-group list-group-flush">
