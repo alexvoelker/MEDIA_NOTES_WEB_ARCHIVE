@@ -25,21 +25,21 @@ const userID = 1;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-app.get("/", async (req, res) => {
+app.get("/search", async (req, res) => {
   const page_data = {
     page_name: "home",
     library_size: await get_library_size(userID),
   };
 
   res.locals = page_data;
-  res.render("index.ejs");
+  res.render("search.ejs");
 });
 
-app.get("/search", (req, res) => {
-  res.redirect("/");
+app.get("/", (req, res) => {
+  res.redirect("/search");
 });
 
-app.post("/", async (req, res) => {
+app.post("/search", async (req, res) => {
   const page_data = {
     page_name: "home",
     library_size: await get_library_size(),
@@ -61,7 +61,7 @@ app.post("/", async (req, res) => {
     console.log(`Errored: ${error}`);
   }
   res.locals = page_data;
-  res.render("index.ejs");
+  res.render("search.ejs");
 });
 
 app.post("/add", async (req, res) => {
@@ -73,13 +73,15 @@ app.post("/add", async (req, res) => {
     const selection_item = {
       type: selection[0],
       id: selection[1],
+      image_url: `${selection[2]}:${selection[3]}`,
     };
 
-    if (!selection_item || selection.length !== 2) {
-      throw new Error("invalid input");
+    if (!selection_item) {
+      console.log(selection, selection_item);
+      throw new Error("POST /add: invalid input");
     }
 
-    await add_item_details_db(selection_item.type, selection_item.id, userID);
+    await add_item_details_db(selection_item.type, selection_item.id, userID, selection_item.image_url);
 
     res.redirect("/library");
   } catch (error) {

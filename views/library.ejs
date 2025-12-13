@@ -27,19 +27,18 @@
                                                 <li class="list-group-item">
                                                     <p class="card-text">
                                                         <strong>
-                                                            Author
+                                                            Author<% if (item.authors.length> 1) { %>s<% } %>:
                                                         </strong>
-                                                        <% if (item.authors.length> 1) { %>"s"<% } %>:
-                                                                <%= item.authors.join(", ") %>
+                                                        <%= item.authors.join(", ") %>
                                             </p>
                                                 </li>
                                                 <li class=" list-group-item">
-                                                                    <p class=" card-text">
-                                                                        <strong>
-                                                                            On reading list?
-                                                                        </strong>
-                                                                        <%= item.on_reading_list ? " Yes" : "No" %>
-                                                                    </p>
+                                                            <p class=" card-text">
+                                                                <strong>
+                                                                    On reading list?
+                                                                </strong>
+                                                                <%= item.on_reading_list ? " Yes" : "No" %>
+                                                            </p>
                                                 </li>
                                                 <li class="list-group-item">
                                                     <p class="card-text">

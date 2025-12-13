@@ -56,7 +56,8 @@ create table movie_tv_images (
 create table users (
     id SERIAL primary key,
     username text not null,
-    password text not null
+    password text not null,
+    creation_date date not null, -- this is new, need to make sure it works
 );
 create table user_notes_books (
     note_id serial primary key,

@@ -37,7 +37,7 @@ function formatted_date_string(input_string) {
 }
 
 // TODO: refactor to move into api_helper.js
-export async function add_item_details_db(type, item_id, userID) {
+export async function add_item_details_db(type, item_id, userID, image_url) {
   //    make api call to get more details about the item
   //    add data to db, associate data with userID in another table
   //    catch errors of invalid input/response data retrieved from API call
@@ -188,6 +188,11 @@ export async function add_item_details_db(type, item_id, userID) {
         let images_api_response = (await axios.get(MOVIE_TV_IMAGES_API_URL))
           .data;
         const image_urls = [];
+        
+          // Add the image URL of the search page's card
+          image_urls.push(image_url);
+          
+          
         for (let image of images_api_response["images"]) {
           image_urls.push(image["url"]);
         }
