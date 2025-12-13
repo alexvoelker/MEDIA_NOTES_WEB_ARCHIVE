@@ -188,11 +188,10 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
         let images_api_response = (await axios.get(MOVIE_TV_IMAGES_API_URL))
           .data;
         const image_urls = [];
-        
-          // Add the image URL of the search page's card
-          image_urls.push(image_url);
-          
-          
+
+        // Add the image URL of the search page's card
+        image_urls.push(image_url);
+
         for (let image of images_api_response["images"]) {
           image_urls.push(image["url"]);
         }
@@ -501,9 +500,11 @@ export async function add_user_note(media_type, userID, item_id, message) {
       throw new Error("invalid POST request, no message content");
     }
 
+    let response;
+
     switch (media_type) {
       case "Book":
-        let response = await db.query(
+        response = await db.query(
           `insert into user_notes_books (user_id, book_id, note_content) 
             values ($1, $2, $3)`,
           [userID, item_id, message]
@@ -531,10 +532,11 @@ export async function update_user_note(media_type, userID, id, message) {
     if (!id || !message) {
       throw new Error("invalid PUT request, no message content or note id");
     }
+    let response;
 
     switch (media_type) {
       case "Book":
-        let response = await db.query(
+        response = await db.query(
           `update user_notes_books
           set note_content = $1
           where note_id = $2 and user_id = $3`,
@@ -564,9 +566,10 @@ export async function delete_user_note(media_type, id, userID) {
     if (!id) {
       throw new Error("invalid DELETE request, no note id");
     }
+    let response;
     switch (media_type) {
       case "Book":
-        let response = await db.query(
+        response = await db.query(
           `delete from user_notes_books 
                 where user_id = $1 and note_id = $2`,
           [userID, id]
@@ -574,7 +577,7 @@ export async function delete_user_note(media_type, id, userID) {
         break;
       case "Movie_TV":
         response = await db.query(
-          `delete from user_notes_movie_tv 
+          `delete from user_notes_movies_tv 
                 where user_id = $1 and note_id = $2`,
           [userID, id]
         );
@@ -586,5 +589,37 @@ export async function delete_user_note(media_type, id, userID) {
     }
   } catch (error) {
     console.log(`Errored: ${error}`);
+  }
+}
+
+export async function check_existing_user(username) {
+  try {
+    return await db.query("SELECT username FROM users WHERE username = $1", [
+      username,
+    ]);
+  } catch (err) {
+    console.log("error", err);
+  }
+}
+
+export async function insert_new_user_in_db(username, password_hash) {
+  try {
+    return await db.query(
+      "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *",
+      [username, password_hash]
+    );
+  } catch (err) {
+    console.log("error", err);
+  }
+}
+
+export async function get_existing_user_details(username) {
+  try {
+    return await db.query(
+      "SELECT id, username, password FROM users WHERE username = $1 ",
+      [username]
+    );
+  } catch (err) {
+    console.log("error", err);
   }
 }

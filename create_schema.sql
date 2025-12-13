@@ -57,7 +57,7 @@ create table users (
     id SERIAL primary key,
     username text not null,
     password text not null,
-    creation_date date not null, -- this is new, need to make sure it works
+    creation_date date not null, -- TODO: this is new, need to make sure it works
 );
 create table user_notes_books (
     note_id serial primary key,
@@ -71,6 +71,7 @@ create table user_books_list_categories (
     user_id integer references users(id),
     book_id text references book_data(book_id),
     page_at integer not null DEFAULT 0,
+    display_image_url text references book_images(resource_url_location), -- TODO: make sure this works
     -- set to 0 by default
     on_reading_list boolean not null default false,
     has_read boolean not null default false,
@@ -93,6 +94,7 @@ create table user_movie_tv_list_categories (
     user_id integer references users(id),
     movie_tv_id text references movie_tv_data(movie_tv_id),
     page_at integer not null DEFAULT 0,
+    display_image_url text references movie_tv_images(resource_url_location), -- TODO: make sure this works
     -- set to 0 by default
     on_reading_list boolean not null default false,
     has_read boolean not null default false,

@@ -51,7 +51,8 @@
                             <path d="M4 4v16"></path>
                         </svg><span>My Library</span>
                         <span>
-                            (<%= locals.library_size %>)
+                            <% if (locals.library_size> 0) { %>
+                                (<%= locals.library_size %>) <%}%>
                         </span>
                     </a>
                 </li>
