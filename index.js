@@ -262,6 +262,7 @@ app.post("/register", async (req, res) => {
   const password = req.body.password;
 
   try {
+    if (!email) throw new Error("Invalid email input");
     const checkResult = await check_existing_user(email);
 
     if (checkResult.rows.length > 0) {
@@ -281,7 +282,7 @@ app.post("/register", async (req, res) => {
               if (err) {
                 console.log(err);
               } else {
-                res.redirect("/");
+                res.redirect("/register");
               }
             });
           }
@@ -290,6 +291,7 @@ app.post("/register", async (req, res) => {
     }
   } catch (err) {
     console.log(err);
+    res.redirect("/register");
   }
 });
 

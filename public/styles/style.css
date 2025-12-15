@@ -14,6 +14,12 @@
     color: black;
 }
 
+/* Login / Register Form */
+.authentication-form {
+    border: 1em;
+}
+
+
 /* .nav-library-button {
     color: whitesmoke;
 } */
@@ -126,4 +132,10 @@ textarea {
     min-width: 100%;
     background-color: black;
     color: whitesmoke;
+}
+
+
+/* Account Page */
+.account-main {
+    margin: 2rem;
 }
