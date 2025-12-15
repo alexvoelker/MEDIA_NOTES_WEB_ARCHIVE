@@ -1,15 +1,17 @@
 <%- include('partials/header.ejs') %>
 
     <main>
-        <h1>account</h1>
-        <!-- TODO: Display account information: username, account creation date, number of notes, 
+        <div class="account-main">
+            <h1>Account</h1>
+            <!-- TODO: Display account information: username, account creation date, number of notes, 
          number of items in library, total number of episodes watched, number of items on watch 
          list and have watched lists, etc. -->
 
-        <a href="/logout"><button class="btn btn-dark">
-                Log Out of Account?
-            </button>
-        </a>
+            <a href="/logout"><button class="btn btn-outline-danger">
+                    Log Out of Account?
+                </button>
+            </a>
+        </div>
     </main>
 
     <%- include('partials/footer.ejs') %>
