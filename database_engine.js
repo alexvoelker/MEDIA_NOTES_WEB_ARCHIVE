@@ -13,7 +13,11 @@ const db = new pg.Client({
   database: environment.POSTGRES_DB,
 });
 
-db.connect();
+export async function check_db_connection() {
+  console.log("connecting to database...");
+  await db.connect();
+  return "database connection success!";
+}
 
 export async function get_library_size(userID) {
   // Make call to db to see how large the user's library is (books + movies/TV elements)

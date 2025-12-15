@@ -9,6 +9,7 @@ import {
   check_existing_user,
   insert_new_user_in_db,
   get_existing_user_details,
+  check_db_connection,
 } from "./database_engine.js";
 import { get_api_response_base } from "./api_helper.js";
 import express from "express";
@@ -396,6 +397,7 @@ passport.deserializeUser((user, cb) => {
   cb(null, user);
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Server running on port ${port}`);
+  console.log(await check_db_connection()); // MUST RUN TO ESTABLISH CONNECTION TO DB
 });
