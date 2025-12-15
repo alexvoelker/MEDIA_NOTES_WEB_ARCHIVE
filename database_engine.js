@@ -1,6 +1,10 @@
 import env from "dotenv";
-import axios from "axios";
 import pg from "pg";
+import {
+  get_book_details_main,
+  get_movie_tv_details_main,
+  formatted_date_string,
+} from "./api_helper.js";
 
 env.config();
 const environment = process.env;
@@ -36,76 +40,18 @@ export async function get_library_size(userID) {
   return book_library_size + movie_tv_library_size;
 }
 
-function formatted_date_string(input_string) {
-  return new Date(new String(input_string)).toISOString().substring(0, 10);
-}
-
-// TODO: refactor to move into api_helper.js
 export async function add_item_details_db(type, item_id, userID, image_url) {
   //    make api call to get more details about the item
   //    add data to db, associate data with userID in another table
   //    catch errors of invalid input/response data retrieved from API call
   switch (type) {
     case "Book":
+      // Get data on the individual book
       try {
-        // Get data about the individual book
-        let BOOK_SEARCH_API_URL = `https://openlibrary.org/works/${item_id}.json`;
-        let api_response = (await axios.get(BOOK_SEARCH_API_URL)).data;
-        if (api_response["works"] && api_response["works"][0]["key"]) {
-          item_id = api_response["works"][0]["key"].split("/");
-          item_id = item_id[item_id.length - 1];
-          BOOK_SEARCH_API_URL = `https://openlibrary.org/works/${item_id}.json`;
-          api_response = (await axios.get(BOOK_SEARCH_API_URL)).data;
-        }
-        let publishing_date =
-          api_response["publish_date"] || api_response["first_publish_date"];
-        if (publishing_date) {
-          publishing_date = formatted_date_string(publishing_date);
-        }
+        const [book_data, author_records, cover_image_urls] =
+          await get_book_details_main(item_id);
 
-        const book_data = {
-          book_id: item_id,
-          title: api_response["title"],
-          description: api_response["description"],
-          series: api_response["series"],
-          publish_date: publishing_date,
-        };
-
-        // get data on each of the book's authors, there can be more than one
-        let author_ids_raw = api_response["authors"];
-        const author_records = [];
-
-        if (author_ids_raw) {
-          for (let author of author_ids_raw) {
-            let key = author["author"]["key"].split("/");
-            let author_id = key[key.length - 1];
-            const author_data = (
-              await axios.get(
-                `https://openlibrary.org/authors/${author_id}.json`
-              )
-            ).data;
-            const new_author_record = {};
-            new_author_record.id = author_id;
-            new_author_record.name = author_data["name"];
-            if (author_data["bio"] && author_data["bio"]["value"]) {
-              new_author_record.author_bio = author_data["bio"]["value"];
-            }
-            author_records.push(new_author_record);
-          }
-        }
-        // console.log(book_data);
-
-        // construct the image urls of each "cover" that the book has
-        let cover_ids = api_response["covers"];
-        const cover_image_urls = [];
-        if (cover_ids) {
-          cover_ids.forEach((id) => {
-            cover_image_urls.push(
-              `https://covers.openlibrary.org/b/id/${id}-L.jpg`
-            );
-          });
-        }
-
+        console.log(item_id, book_data, author_records, cover_image_urls);
         // insert data into the database
 
         // Insert into book_data table
@@ -121,7 +67,7 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
             ]
           );
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`book_data insert error: ${error}`);
         }
         // Insert into authors table
         try {
@@ -132,39 +78,39 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
             );
           }
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`authors insert error: ${error}`);
         }
         // Insert into book_authors table
         try {
           for (let author of author_records) {
             await db.query(
               "insert into book_authors (book_id, author_id) values ($1, $2)",
-              [item_id, author.id]
+              [book_data.book_id, author.id]
             );
           }
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`book_authors insert error: ${error}`);
         }
         // Insert into book_images table
         try {
           for (let image_url of cover_image_urls) {
             await db.query(
               "insert into book_images (book_id, resource_url_location) values ($1, $2)",
-              [item_id, image_url]
+              [book_data.book_id, image_url]
             );
           }
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`book_images insert error: ${error}`);
         }
 
         // Make a record for user_books_list_categories -- connect the newly added book data to the user
         try {
           await db.query(
             "insert into user_books_list_categories (user_id, book_id) values ($1, $2)",
-            [userID, item_id]
+            [userID, book_data.book_id]
           );
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`user_book_list_categories insert error: ${error}`);
         }
       } catch (error) {
         console.log(`Errored: ${error}`);
@@ -172,33 +118,9 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
       break;
     case "Movie_TV":
       try {
-        // Get data about the individual book
-        let MOVIE_TV_SEARCH_API_URL = `https://api.imdbapi.dev/titles/${item_id}`;
-        let api_response = (await axios.get(MOVIE_TV_SEARCH_API_URL)).data;
-
-        const movie_tv_data = {
-          id: api_response["id"],
-          type: api_response["type"],
-          title: api_response["primaryTitle"],
-          start_year: api_response["startYear"],
-          end_year: api_response["endYear"], // this might be null
-          plot: api_response["plot"],
-        };
-
-        const movie_tv_genres = api_response["genres"];
-
-        // get the image urls
-        let MOVIE_TV_IMAGES_API_URL = `https://api.imdbapi.dev/titles/${item_id}/images`;
-        let images_api_response = (await axios.get(MOVIE_TV_IMAGES_API_URL))
-          .data;
-        const image_urls = [];
-
-        // Add the image URL of the search page's card
-        image_urls.push(image_url);
-
-        for (let image of images_api_response["images"]) {
-          image_urls.push(image["url"]);
-        }
+        // Get data about the individual movie or tv show
+        const [movie_tv_data, movie_tv_genres, image_urls] =
+          await get_movie_tv_details_main(item_id, image_url);
         // insert data into the database
 
         // Insert into movie_tv_data table
@@ -228,7 +150,7 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
             );
           }
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`movie_tv_data insert error: ${error}`);
         }
         // Insert into genres table
         try {
@@ -239,7 +161,7 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
             );
           }
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`movie_tv_genres insert error: ${error}`);
         }
         // Insert into movie_tv_images table
         try {
@@ -250,7 +172,7 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
             );
           }
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`movie_tv_images insert error: ${error}`);
         }
 
         // Make a record for user_movie_tv_list_categories -- connect the newly added movie/tv data to the user
@@ -260,7 +182,7 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
             [userID, movie_tv_data.id]
           );
         } catch (error) {
-          console.log(`Errored: ${error}`);
+          console.log(`user_movie_tv_list_categories insert error: ${error}`);
         }
       } catch (error) {
         console.log(`Errored: ${error}`);
