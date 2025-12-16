@@ -1,6 +1,7 @@
 <%- include('partials/header.ejs') %>
 
     <main class="container archive-item-content">
+        <br>
         <% if (!locals.item_data) { %>
             <div class="row card">
                 <h2 class="card-header">
@@ -34,48 +35,49 @@
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
-                        <small class="card-text text-body-secondary">Images of <%= locals.item_data.title %>.</small>
+                        <small class="card-text text-body-secondary">Images of <%= locals.item_data.title %>
+                                .</small>
                     </div>
                     <% } %>
                         <br>
-                        <div class="row">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h1>
-                                        <strong>
-                                            <%=locals.item_data.title%>
-                                        </strong>
-                                        <h2>
-                                            <% if (locals.item_data.type==="Movie_TV" ) { %>
-                                                ( <%=new Date(locals.item_data.start_year).getFullYear()%>
-                                                    <% if (locals.item_data.end_year) { %>— <%= new
-                                                            Date(locals.item_data.end_year).getFullYear()%>
-                                                            <%}%> )
-                                                                <% } %>
-                                        </h2>
-                                    </h1>
-                                </div>
-                                <div class="card-body">
-                                    <h4>
-                                        <strong>ID:</strong>
-                                        <%=locals.id%>
-                                    </h4>
-                                    <h4>
-                                        <strong>Type:</strong>
-                                        <%=locals.item_data.type%>
-                                    </h4>
-                                    <h4>
-                                        <strong>Rated:</strong>
-                                        <%= locals.item_data.rating===-1 ? "Not yet rated" : locals.item_data.rating %>
-                                    </h4>
-                                </div>
+                        <div class="row card">
+                            <div class="card-header">
+                                <h1>
+                                    <strong>
+                                        <%=locals.item_data.title%>
+                                    </strong>
+                                </h1>
+                                <h2>
+                                    <% if (locals.item_data.type==="Movie_TV" ) { %>
+                                        ( <%=new Date(locals.item_data.start_year).getFullYear()%>
+                                            <% if (locals.item_data.end_year) { %>— <%= new
+                                                    Date(locals.item_data.end_year).getFullYear()%>
+                                                    <%}%> )
+                                                        <% } %>
+                                </h2>
+                            </div>
+                            <div class="card-body">
+                                <h4>
+                                    <strong>ID:</strong>
+                                    <%=locals.id%>
+                                </h4>
+                                <h4>
+                                    <strong>Type:</strong>
+                                    <%=locals.item_data.type%>
+                                </h4>
+                                <h4>
+                                    <strong>Rated:</strong>
+                                    <%= locals.item_data.rating===-1 ? "Not yet rated" : locals.item_data.rating %>
+                                </h4>
                             </div>
                         </div>
                         <br>
                         <% if (locals.item_data.type==="Book" ) { %>
                             <div class="row card">
                                 <div class="card-header">
-                                    General Details
+                                    <h2>
+                                        General Details
+                                    </h2>
                                 </div>
                                 <ul class="list-group list-group-flush">
                                     <%if (locals.item_data.series) {%>
@@ -118,7 +120,9 @@
                         <br>
                         <div class=" row card">
                                                                         <div class="card-header">
-                                                                            User Details
+                                                                            <h2>
+                                                                                User Details
+                                                                            </h2>
                                                                         </div>
                                                                         <div class="card-body">
                                                             <li class="list-group-item">
@@ -146,7 +150,9 @@
                             <% } else if (locals.item_data.type==="Movie_TV" ) { %>
                                 <div class="row card">
                                     <div class="card-header">
-                                        General Details
+                                        <h2>
+                                            General Details
+                                        </h2>
                                     </div>
                                     <div class="card-body">
                                         <ul class="list-group list-group-flush">
@@ -180,7 +186,9 @@
                                 <br>
                                 <div class=" row card">
                                                                             <div class="card-header">
-                                                                                User Details
+                                                                                <h2>
+                                                                                    User Details
+                                                                                </h2>
                                                                             </div>
                                                                             <div class="card-body">
                                                                                 <ul class="list-group list-group-flush">
@@ -243,7 +251,9 @@
                                                 <br>
                                                 <% for (let note of locals.item_data.notes) { %>
                                                     <div class="card note-content">
-                                                        <span class="input-group-text"><%=note.id%></span>
+                                                        <span class="input-group-text">
+                                                            <%=note.id%>
+                                                        </span>
                                                         <form
                                                             action="/archive/<%=locals.item_data.type%>/<%=locals.item_data.id%>/put"
                                                             method="POST">

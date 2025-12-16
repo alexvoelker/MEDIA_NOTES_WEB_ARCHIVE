@@ -224,6 +224,7 @@ export async function get_library_data(userID) {
 
         // row.cover_image_url = image_data.rows[0].resource_url_location;
         row.cover_image_url = row.display_image_url;
+        row.date_string = row.publish_date ? `(${new Date(row.publish_date).getFullYear()})` : null;
         row.id = row.book_id;
         const authors = await db.query(
           `select author_name
@@ -265,7 +266,6 @@ export async function get_library_data(userID) {
         // );
         // row.cover_image_url = cover_image.rows[0].resource_url_location;
         row.cover_image_url = row.display_image_url;
-
         row.id = row.movie_tv_id;
         // get genres of the row
         const genres = await db.query(
