@@ -238,13 +238,16 @@ app.get("/account", async (req, res) => {
   }
 });
 
-// TODO: make /login and /register not accessible when logged in?
+let authenticationError;
+
 app.get("/login", (req, res) => {
   const page_data = {
     page_name: "login",
     library_size: -1,
+    authenticationError: authenticationError,
   };
   res.locals = page_data;
+  authenticationError = null;
   res.render("login.ejs");
 });
 
@@ -252,8 +255,10 @@ app.get("/register", (req, res) => {
   const page_data = {
     page_name: "register",
     library_size: -1,
+    authenticationError: authenticationError,
   };
   res.locals = page_data;
+  authenticationError = null;
   res.render("register.ejs");
 });
 
@@ -266,7 +271,10 @@ app.post("/register", async (req, res) => {
     const checkResult = await check_existing_user(email);
 
     if (checkResult.rows.length > 0) {
-      res.send("Username already exists. Try logging in."); // TODO: make a more elegant response here
+      authenticationError = "Username already exists. Try logging in.";
+      throw new Error(
+        "User attempted to register new account failure: Username already exists"
+      );
     } else {
       //hashing the password and saving it in the database
       bcrypt.hash(
@@ -275,12 +283,15 @@ app.post("/register", async (req, res) => {
         async (err, hash) => {
           if (err) {
             console.error("Error hashing password:", err);
+            authenticationError = "Error hashing password";
           } else {
             const result = await insert_new_user_in_db(email, hash);
             const user = result.rows[0];
             req.login(user, (err) => {
               if (err) {
                 console.log(err);
+                authenticationError =
+                  "Failed to register new account, please try again";
               } else {
                 res.redirect("/register");
               }
@@ -337,17 +348,20 @@ passport.use(
         const storedHashedPassword = user.password;
         bcrypt.compare(password, storedHashedPassword, (err, valid) => {
           if (err) {
-            return cb(err);
+            authenticationError = "Failed to authenticate, please try again.";
+            return cb(null, false);
           } else {
             if (valid) {
-              return cb(null, { id: user.id, username: user.username }); // TODO: make sure the password isn't being shared around
+              return cb(null, { id: user.id, username: user.username });
             } else {
+              authenticationError = "Failed to authenticate, please try again.";
               return cb(null, false);
             }
           }
         });
       } else {
-        return cb("User not found");
+        authenticationError = "Failed to authenticate, please try again.";
+        return cb(null, false);
       }
     } catch (err) {
       console.log(err);
@@ -365,7 +379,6 @@ passport.use(
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     async (accessToken, refreshToken, profile, cb) => {
-      // TODO: make this work properly for this application
       try {
         // console.log(profile);
         const result = await get_existing_user_details(profile.email);
@@ -374,7 +387,6 @@ passport.use(
             profile.email,
             "google-oauth-login"
           );
-          // TODO: make sure the "password" isn't being returned here
           return cb(null, {
             id: newUser.rows[0].id,
             username: newUser.rows[0].username,
