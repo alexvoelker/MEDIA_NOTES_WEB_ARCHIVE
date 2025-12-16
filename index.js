@@ -292,8 +292,9 @@ app.post("/register", async (req, res) => {
                 console.log(err);
                 authenticationError =
                   "Failed to register new account, please try again";
-              } else {
                 res.redirect("/register");
+              } else {
+                res.redirect("/");
               }
             });
           }

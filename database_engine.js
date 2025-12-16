@@ -106,8 +106,8 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
         // Make a record for user_books_list_categories -- connect the newly added book data to the user
         try {
           await db.query(
-            "insert into user_books_list_categories (user_id, book_id) values ($1, $2)",
-            [userID, book_data.book_id]
+            "insert into user_books_list_categories (user_id, book_id, display_image_url) values ($1, $2, $3)",
+            [userID, book_data.book_id, cover_image_urls[0]]
           );
         } catch (error) {
           console.log(`user_book_list_categories insert error: ${error}`);
@@ -178,8 +178,8 @@ export async function add_item_details_db(type, item_id, userID, image_url) {
         // Make a record for user_movie_tv_list_categories -- connect the newly added movie/tv data to the user
         try {
           await db.query(
-            "insert into user_movie_tv_list_categories (user_id, movie_tv_id) values ($1, $2)",
-            [userID, movie_tv_data.id]
+            "insert into user_movie_tv_list_categories (user_id, movie_tv_id, display_image_url) values ($1, $2, $3)",
+            [userID, movie_tv_data.id, image_urls[0]]
           );
         } catch (error) {
           console.log(`user_movie_tv_list_categories insert error: ${error}`);
@@ -214,14 +214,16 @@ export async function get_library_data(userID) {
       try {
         row.type = "Book";
 
-        const image_data = await db.query(
-          `select resource_url_location 
-            from book_images 
-            where book_id = $1 
-            limit 1;`,
-          [row.book_id]
-        );
-        row.cover_image_url = image_data.rows[0].resource_url_location;
+        // const image_data = await db.query(
+        //   `select resource_url_location
+        //     from book_images
+        //     where book_id = $1
+        //     limit 1;`,
+        //   [row.book_id]
+        // );
+
+        // row.cover_image_url = image_data.rows[0].resource_url_location;
+        row.cover_image_url = row.display_image_url;
         row.id = row.book_id;
         const authors = await db.query(
           `select author_name
@@ -253,15 +255,17 @@ export async function get_library_data(userID) {
     for (let row of movie_tv_results.rows) {
       try {
         row.type = "Movie_TV";
-        // get the row's cover image
-        const cover_image = await db.query(
-          `select resource_url_location 
-            from movie_tv_images
-            where movie_tv_id = $1 
-            limit 1;`,
-          [row.movie_tv_id]
-        );
-        row.cover_image_url = cover_image.rows[0].resource_url_location;
+        // // get the row's cover image
+        // const cover_image = await db.query(
+        //   `select resource_url_location 
+        //     from movie_tv_images
+        //     where movie_tv_id = $1 
+        //     limit 1;`,
+        //   [row.movie_tv_id]
+        // );
+        // row.cover_image_url = cover_image.rows[0].resource_url_location;
+        row.cover_image_url = row.display_image_url;
+
         row.id = row.movie_tv_id;
         // get genres of the row
         const genres = await db.query(
@@ -531,8 +535,8 @@ export async function check_existing_user(username) {
 export async function insert_new_user_in_db(username, password_hash) {
   try {
     return await db.query(
-      "INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *",
-      [username, password_hash]
+      "INSERT INTO users (username, password, created_date) VALUES ($1, $2, $3) RETURNING *",
+      [username, password_hash, formatted_date_string(new Date())]
     );
   } catch (err) {
     console.log("error", err);
@@ -542,7 +546,7 @@ export async function insert_new_user_in_db(username, password_hash) {
 export async function get_existing_user_details(username) {
   try {
     return await db.query(
-      "SELECT id, username, password FROM users WHERE username = $1 ",
+      "SELECT id, username, password, created_date FROM users WHERE username = $1 ",
       [username]
     );
   } catch (err) {
