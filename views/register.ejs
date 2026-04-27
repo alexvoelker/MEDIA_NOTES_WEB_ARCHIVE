@@ -1,15 +1,16 @@
 <%- include('partials/header.ejs') %>
+
     <div class="container mt-5">
         <div class="row authentication-form">
             <!-- Pills navs -->
             <ul class="nav nav-pills nav-justified mb-3 p-2" id="ex1" role="tablist">
-                <li class="nav-item btn btn-primary" role="presentation">
+                <li class="nav-item btn btn-outline-secondary" role="presentation">
                     <a class="nav-link" id="tab-login" data-mdb-pill-init href="/login" role="tab"
                         aria-controls="pills-login" aria-selected="true">
                         Login
                     </a>
                 </li>
-                <li class="nav-item btn btn-outline-secondary" role="presentation">
+                <li class="nav-item btn btn-primary" role="presentation">
                     <a class="nav-link" id="tab-register" data-mdb-pill-init href="/register" role="tab"
                         aria-controls="pills-register" aria-selected="false">
                         Register
@@ -29,7 +30,7 @@
                                 aria-labelledby="tab-login">
                                 <br>
                                 <div class="text-center mb-3">
-                                    <form action="/login" method="POST">
+                                    <form action="/register" method="POST">
                                         <div class="form-group">
                                             <!-- Email input -->
                                             <div data-mdb-input-init class="form-outline mb-4">
@@ -40,16 +41,21 @@
                                             <!-- Password input -->
                                             <div data-mdb-input-init class="form-outline mb-4">
                                                 <input type="password" id="loginPassword" class="form-control"
-                                                    placeholder="Password" aria-label="email" name="password"
-                                                    required />
+                                                    placeholder="Password" aria-label="password" onChange="onChange()"
+                                                    name="password" required />
                                             </div>
-
+                                            <!-- (Confirm) Password input -->
+                                            <div data-mdb-input-init class="form-outline mb-4">
+                                                <input type="password" id="loginPasswordConfirm" class="form-control"
+                                                    placeholder="Confirm Password" aria-label="password"
+                                                    onChange="onChange()" name="" required />
+                                            </div>
                                             <button type="submit" data-mdb-button-init data-mdb-ripple-init
-                                                class="btn btn-primary btn-block">Sign in</button>
+                                                class="btn btn-primary btn-block">Sign Up</button>
                                         </div>
                                     </form>
                                     <br>
-                                    <p class="text-center">— Or Sign In With —</p>
+                                    <p class="text-center">— Or Sign Up With —</p>
                                     <a class="btn btn-block" href="/auth/google" role="button">
                                         <button data-mdb-button-init data-mdb-ripple-init
                                             class="btn btn-lg btn-block btn-danger" type="submit">
@@ -58,7 +64,7 @@
                                                 <path
                                                     d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z" />
                                             </svg>
-                                            Sign in with google
+                                            Sign up with google
                                         </button>
                                     </a>
                                 </div>
@@ -68,5 +74,21 @@
 
         </div>
     </div>
+
+    <script>
+        // Source - https://stackoverflow.com/questions/21727317/how-to-check-confirm-password-field-in-form-without-reloading-page
+        // Posted by laggingreflex
+        // Retrieved 2025-12-15, License - CC BY-SA 4.0
+
+        function onChange() {
+            const password = document.querySelector('input[id=loginPassword]');
+            const confirm = document.querySelector('input[id=loginPasswordConfirm]');
+            if (confirm.value === password.value) {
+                confirm.setCustomValidity('');
+            } else {
+                confirm.setCustomValidity('Passwords do not match');
+            }
+        }
+    </script>
 
     <%- include('partials/footer.ejs') %>

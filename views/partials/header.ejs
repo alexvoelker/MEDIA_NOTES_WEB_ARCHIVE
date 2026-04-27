@@ -29,7 +29,7 @@
 
             <ul class="nav nav-pills justify-content-end">
                 <!-- Search Page Link -->
-                <li class="nav-item"><a href="/" class="nav-link nav-search-button" aria-current="page">
+                <li class="nav-item"><a href="/search" class="nav-link nav-search-button" aria-current="page">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                             class="bi bi-search" viewBox="0 0 16 16">
                             <path
@@ -51,7 +51,8 @@
                             <path d="M4 4v16"></path>
                         </svg><span>My Library</span>
                         <span>
-                            (<%= locals.library_size %>)
+                            <% if (locals.library_size> 0) { %>
+                                (<%= locals.library_size %>) <%}%>
                         </span>
                     </a>
                 </li>
