@@ -1,8 +1,6 @@
 # Media Notes Web Archive
 
 ## Overview
-> [!NOTE]
-> This is a version to refactor the codebase, utalizing multiple accounts and user authentication.
 
 A website utalizing PostgreSQL, and Node to list a selection of book, tv, and movie watchlists.
 It also supports adding notes for each entry and rating them.
